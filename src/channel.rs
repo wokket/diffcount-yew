@@ -1,14 +1,19 @@
+use crate::clear_agent::*;
+use serde_derive::{Deserialize, Serialize};
+use yew::agent::*;
 use yew::services::ConsoleService;
-use yew::{html, Callback, Component, ComponentLink, Html, Properties, Renderable, ShouldRender};
+use yew::*;
 
 pub struct Channel {
 	console: ConsoleService,
 	value: i32,
 	channel_num: u8,
 	total: i32,
+	// Callback back up to parent to let it know to increment global totals/ percentages etc
 	on_increment: Option<Callback<crate::state::StateMsg>>,
 }
 
+#[derive(Serialize, Deserialize, Debug)]
 pub enum ChannelMsg {
 	Increment,
 	Clear,
@@ -35,14 +40,19 @@ impl Component for Channel {
 	type Message = ChannelMsg;
 	type Properties = Props;
 
-	fn create(props: Self::Properties, _: ComponentLink<Self>) -> Self {
-		Channel {
+	fn create(props: Self::Properties, mut link: ComponentLink<Self>) -> Self {
+		let s = Channel {
 			console: ConsoleService::new(),
 			value: 0,
 			total: props.total,
 			channel_num: props.channel_num,
 			on_increment: props.on_increment,
-		}
+		};
+
+		//ClearAgent::register_callback(s.update); // attach to agent
+		let callback = link.send_back(|_| ChannelMsg::Clear);
+		ClearAgent::bridge(callback);
+		s
 	}
 
 	fn update(&mut self, msg: Self::Message) -> ShouldRender {
@@ -53,11 +63,11 @@ impl Component for Channel {
 				if let Some(ref mut callback) = self.on_increment {
 					callback.emit(crate::state::StateMsg::Incremented);
 				}
-				self.console.log("Incremented...");
+				self.console.log("Channel: Incremented...");
 			}
 			ChannelMsg::Clear => {
 				self.value = 0;
-				self.console.log("Channel Cleared...");
+				self.console.log("Channel: Cleared...");
 			}
 		}
 		true

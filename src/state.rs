@@ -1,18 +1,27 @@
 use crate::channel::*;
-use yew::{html, Component, ComponentLink, Html, Renderable, ShouldRender};
+use crate::clear_agent::*;
+use serde_derive::{Deserialize, Serialize};
+use yew::agent::*;
+use yew::services::ConsoleService;
+use yew::*;
 
 /// Reflects the current running state of the application.
 pub struct State {
+	console: ConsoleService,
 	pub total: i32,
 	/// Trigger a small alarm every `alarm_count` total entries, so users know how many they're up to.
 	pub alarm_count: i32,
+	pub clear_agent: Box<dyn Bridge<ClearAgent>>,
 }
 
+#[derive(Serialize, Deserialize, Debug)]
 pub enum StateMsg {
 	/// Called from UI to request a reset to 0 counts
 	Clear,
 	/// Passed from a channel to indicate it's value has been bumped up
 	Incremented,
+	/// Called when each child channel has cleared it's values...
+	Cleared,
 }
 
 impl State {}
@@ -21,17 +30,29 @@ impl Component for State {
 	type Message = StateMsg;
 	type Properties = ();
 
-	fn create(_: Self::Properties, _: ComponentLink<Self>) -> Self {
+	fn create(_: Self::Properties, mut link: ComponentLink<Self>) -> Self {
+		let callback = link.send_back(|_| StateMsg::Cleared);
+		let clear_agent = ClearAgent::bridge(callback);
+
 		State {
-			alarm_count: 100,
+			console: ConsoleService::new(),
+			alarm_count: 10,
 			total: 0,
+			clear_agent,
 		}
 	}
 
 	fn update(&mut self, msg: Self::Message) -> ShouldRender {
 		match msg {
 			StateMsg::Clear => {
-				//TODO
+				self.console.log("Clear Requested");
+				//self.clear_agent.send(msg); // call 1:M message router to request child channels to clear
+				ClearAgent::dispatcher().send(msg);
+			}
+			StateMsg::Cleared => {
+				// Children have now reset their internal counts
+				self.console.log("Child Clear Complete");
+				self.total = 0;
 			}
 			StateMsg::Incremented => {
 				self.total += 1;
@@ -45,7 +66,7 @@ impl Renderable<Self> for State {
 	fn view(&self) -> Html<Self> {
 		html! {
 			<div>
-				<div>{format!("Total Count: {}", self.total) }</div>
+				<h2>{ format!("Total Count: {}", self.total) }</h2>
 				<br />
 				<Channel channel_num=1 total=self.total on_increment=|msg| msg/>
 				<Channel channel_num=2 total=self.total on_increment=|msg| msg/>
@@ -60,6 +81,8 @@ impl Renderable<Self> for State {
 				<Channel channel_num=10 total=self.total on_increment=|msg| msg/>
 				<Channel channel_num=11 total=self.total on_increment=|msg| msg/>
 				<Channel channel_num=12 total=self.total on_increment=|msg| msg/>
+				<br /><br />
+				<button onclick=|msg| StateMsg::Clear>{"Clear"}</button>
 			</div>
 		}
 	}
