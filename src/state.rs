@@ -45,12 +45,11 @@ impl Component for State {
 	fn update(&mut self, msg: Self::Message) -> ShouldRender {
 		match msg {
 			StateMsg::Clear => {
-				self.console.log("Clear Requested");
-				//self.clear_agent.send(msg); // call 1:M message router to request child channels to clear
-				ClearAgent::dispatcher().send(msg);
+				self.console.info("Clear app requested..");
+				self.clear_agent.send(msg); // call 1:M message router to request child channels to clear
 			}
 			StateMsg::Cleared => {
-				// Children have now reset their internal counts
+				// Children have now reset their internal counts (or may still be working, but the agent has done it's bit)
 				self.console.log("Child Clear Complete");
 				self.total = 0;
 			}

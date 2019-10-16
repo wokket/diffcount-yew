@@ -11,6 +11,9 @@ pub struct Channel {
 	total: i32,
 	// Callback back up to parent to let it know to increment global totals/ percentages etc
 	on_increment: Option<Callback<crate::state::StateMsg>>,
+
+	/// We need to keep a reference to the bridge around, or we get https://github.com/yewstack/yew/issues/712
+	_clear_agent_bridge: Box<dyn Bridge<ClearAgent>>,
 }
 
 #[derive(Serialize, Deserialize, Debug)]
@@ -41,18 +44,16 @@ impl Component for Channel {
 	type Properties = Props;
 
 	fn create(props: Self::Properties, mut link: ComponentLink<Self>) -> Self {
-		let s = Channel {
+		let callback = link.send_back(|_| ChannelMsg::Clear);
+
+		Channel {
 			console: ConsoleService::new(),
 			value: 0,
 			total: props.total,
 			channel_num: props.channel_num,
 			on_increment: props.on_increment,
-		};
-
-		//ClearAgent::register_callback(s.update); // attach to agent
-		let callback = link.send_back(|_| ChannelMsg::Clear);
-		ClearAgent::bridge(callback);
-		s
+			_clear_agent_bridge: ClearAgent::bridge(callback),
+		}
 	}
 
 	fn update(&mut self, msg: Self::Message) -> ShouldRender {

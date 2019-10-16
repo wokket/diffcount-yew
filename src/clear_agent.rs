@@ -1,13 +1,14 @@
 /// Yew Agent to route requests to Clear from the App State to all channels (1:M message routing)
 use crate::channel::*;
 use crate::state::*;
+use std::collections::HashSet;
 use yew::agent::*;
 use yew::services::ConsoleService;
 
 pub struct ClearAgent {
 	console: ConsoleService,
 	link: AgentLink<ClearAgent>,
-	listeners: Vec<HandlerId>,
+	listeners: HashSet<HandlerId>,
 }
 
 impl Transferable for ChannelMsg {}
@@ -26,7 +27,7 @@ impl Agent for ClearAgent {
 		ClearAgent {
 			console,
 			link,
-			listeners: Vec::new(),
+			listeners: HashSet::new(),
 		}
 	}
 
@@ -36,8 +37,8 @@ impl Agent for ClearAgent {
 
 	/// This method called on when a new bridge created.
 	fn connected(&mut self, id: HandlerId) {
-		self.console.info("ClearAgent: New Child connected...");
-		self.listeners.push(id); //store this component away for later
+		self.console.debug("ClearAgent: New Child connected...");
+		self.listeners.insert(id); //store this component away for later
 	}
 
 	// Handle incoming messages from components of other agents.
@@ -45,20 +46,12 @@ impl Agent for ClearAgent {
 		match msg {
 			StateMsg::Clear => {
 				// broadcast it to all listening components
-				self.console.info(
-					format!(
-						"ClearAgent: Notifying all {} subscribers of clear request",
-						self.listeners.len()
-					)
-					.as_str(),
+				self.console.debug(
+					format!("ClearAgent: Requesting subscribers clear themselves.").as_str(),
 				);
 
-				for (i, sub) in self.listeners.iter().enumerate() {
-					if sub.is_respondable() {
-						self.console
-							.info(format!("ClearAgent: Responding to subscriber {}", i).as_str());
-						self.link.response(*sub, ChannelMsg::Clear);
-					}
+				for sub in self.listeners.iter() {
+					self.link.response(*sub, ChannelMsg::Clear);
 				}
 			}
 			_ => self
