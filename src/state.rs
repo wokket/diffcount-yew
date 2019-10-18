@@ -24,7 +24,12 @@ pub enum StateMsg {
 	Cleared,
 }
 
-impl State {}
+impl State {
+	/// return true iff the user alarm is currently triggered.
+	pub fn is_alarm_triggered(&self) -> bool {
+		self.total > 0 && self.total % self.alarm_count == 0
+	}
+}
 
 impl Component for State {
 	type Message = StateMsg;
@@ -63,10 +68,19 @@ impl Component for State {
 
 impl Renderable<Self> for State {
 	fn view(&self) -> Html<Self> {
+		let header = match self.is_alarm_triggered() {
+			true => {
+				ConsoleService::new().debug("State: Alarm Triggered");
+				html! {<h2 class="alarmed">{ format!("Total Count: {}", self.total) } </h2> }
+			}
+			false => {
+				html! {<h2>{ format!("Total Count: {}", self.total) } </h2>}
+			}
+		};
+
 		html! {
 			<div>
-				<h2>{ format!("Total Count: {}", self.total) }</h2>
-				<br />
+				{header}
 				<div class="pure-g">
 				<Channel channel_num=1 total=self.total on_increment=|msg| msg/>
 				<Channel channel_num=2 total=self.total on_increment=|msg| msg/>
