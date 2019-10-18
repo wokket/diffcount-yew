@@ -94,11 +94,15 @@ impl Channel {
 impl Renderable<Self> for Channel {
 	fn view(&self) -> Html<Self> {
 		html! {
+		<div class="pure-u-1-6">
+					<a class="pure-button button-channel" onclick=|_| ChannelMsg::Increment>
+					{ format!("Channel {}", self.channel_num) }
+					<br />
+					<strong>{ format!(" {} ", self.value) }</strong>
+						{ format!("({:.2}%)", self.display_percentage()) }
+					</a>
 
-			<button style="width: 15%; height: 30px; "
-				onclick=|_| ChannelMsg::Increment>
-				{ format!("Channel {}: {} ({:.2}%)", self.channel_num, self.value, self.display_percentage()) }
-			</button>
-		}
+					</div>
+				}
 	}
 }

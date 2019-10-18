@@ -67,21 +67,25 @@ impl Renderable<Self> for State {
 			<div>
 				<h2>{ format!("Total Count: {}", self.total) }</h2>
 				<br />
+				<div class="pure-g">
 				<Channel channel_num=1 total=self.total on_increment=|msg| msg/>
 				<Channel channel_num=2 total=self.total on_increment=|msg| msg/>
 				<Channel channel_num=3 total=self.total on_increment=|msg| msg/>
 				<Channel channel_num=4 total=self.total on_increment=|msg| msg/>
 				<Channel channel_num=5 total=self.total on_increment=|msg| msg/>
 				<Channel channel_num=6 total=self.total on_increment=|msg| msg/>
-				<br />
+				</div>
+				<div class="pure-g">
 				<Channel channel_num=7 total=self.total on_increment=|msg| msg/>
 				<Channel channel_num=8 total=self.total on_increment=|msg| msg/>
 				<Channel channel_num=9 total=self.total on_increment=|msg| msg/>
 				<Channel channel_num=10 total=self.total on_increment=|msg| msg/>
 				<Channel channel_num=11 total=self.total on_increment=|msg| msg/>
 				<Channel channel_num=12 total=self.total on_increment=|msg| msg/>
+				</div>
 				<br /><br />
-				<button onclick=|msg| StateMsg::Clear>{"Clear"}</button>
+
+				<button class="pure-button button-clear" onclick=|msg| StateMsg::Clear>{"Clear"}</button>
 			</div>
 		}
 	}
