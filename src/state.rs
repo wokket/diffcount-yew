@@ -71,7 +71,10 @@ impl Renderable<Self> for State {
 		let header = match self.is_alarm_triggered() {
 			true => {
 				ConsoleService::new().debug("State: Alarm Triggered");
-				html! {<h2 class="alarmed">{ format!("Total Count: {}", self.total) } </h2> }
+				html! {
+					//TODO: Call the beep() js function declared on the index.html somehow...
+					<h2 class="alarmed">{ format!("Total Count: {}", self.total) } </h2>
+				}
 			}
 			false => {
 				html! {<h2>{ format!("Total Count: {}", self.total) } </h2>}
