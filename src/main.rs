@@ -5,5 +5,5 @@
 //static ALLOC: wee_alloc::WeeAlloc = wee_alloc::WeeAlloc::INIT;
 
 fn main() {
-     yew::start_app::<diffcount::state::State>();
+     yew::start_app::<diffcount::state::StateComponent>();
 }

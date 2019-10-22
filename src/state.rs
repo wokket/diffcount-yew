@@ -5,12 +5,18 @@ use yew::agent::*;
 use yew::services::ConsoleService;
 use yew::*;
 
-/// Reflects the current running state of the application.
 pub struct State {
-	console: ConsoleService,
+	//we put all the non-wasm things in here for testing, like seperating a model from a view
 	pub total: i32,
 	/// Trigger a small alarm every `alarm_count` total entries, so users know how many they're up to.
 	pub alarm_count: i32,
+}
+
+/// Reflects the current running state of the application.
+pub struct StateComponent {
+	//TODO: It would be nice if these weren't public
+	pub console: ConsoleService,
+	pub state: State,
 	pub clear_agent: Box<dyn Bridge<ClearAgent>>,
 }
 
@@ -29,9 +35,16 @@ impl State {
 	pub fn is_alarm_triggered(&self) -> bool {
 		self.total > 0 && self.total % self.alarm_count == 0
 	}
+	pub fn on_incremented(&mut self) {
+		self.total += 1;
+	}
+
+	pub fn on_cleared(&mut self) {
+		self.total = 0;
+	}
 }
 
-impl Component for State {
+impl Component for StateComponent {
 	type Message = StateMsg;
 	type Properties = ();
 
@@ -39,11 +52,13 @@ impl Component for State {
 		let callback = link.send_back(|_| StateMsg::Cleared);
 		let clear_agent = ClearAgent::bridge(callback);
 
-		State {
+		StateComponent {
 			console: ConsoleService::new(),
-			alarm_count: 10,
-			total: 0,
-			clear_agent,
+			clear_agent: clear_agent,
+			state: State {
+				alarm_count: 10,
+				total: 0,
+			},
 		}
 	}
 
@@ -56,28 +71,31 @@ impl Component for State {
 			StateMsg::Cleared => {
 				// Children have now reset their internal counts (or may still be working, but the agent has done it's bit)
 				self.console.log("Child Clear Complete");
-				self.total = 0;
+				self.state.on_cleared();
 			}
 			StateMsg::Incremented => {
-				self.total += 1;
+				self.state.on_incremented();
 			}
 		}
 		true
 	}
 }
 
-impl Renderable<Self> for State {
+impl Renderable<Self> for StateComponent {
 	fn view(&self) -> Html<Self> {
-		let header = match self.is_alarm_triggered() {
+		let header = match self.state.is_alarm_triggered() {
 			true => {
-				ConsoleService::new().debug("State: Alarm Triggered");
+				//self.console.log("State: Alarm Triggered");
 				html! {
-					//TODO: Call the beep() js function declared on the index.html somehow...
-					<h2 class="alarmed">{ format!("Total Count: {}", self.total) } </h2>
+					<div>
+					//Call the beep() js function declared on the index.html
+					<script>{ "window.beep();" }</script>
+					<h2 class="alarmed">{ format!("Total Count: {}", self.state.total) } </h2>
+					</div>
 				}
 			}
 			false => {
-				html! {<h2>{ format!("Total Count: {}", self.total) } </h2>}
+				html! {<h2>{ format!("Total Count: {}", self.state.total) } </h2>}
 			}
 		};
 
@@ -85,20 +103,20 @@ impl Renderable<Self> for State {
 			<div>
 				{header}
 				<div class="pure-g">
-				<Channel channel_num=1 total=self.total on_increment=|msg| msg/>
-				<Channel channel_num=2 total=self.total on_increment=|msg| msg/>
-				<Channel channel_num=3 total=self.total on_increment=|msg| msg/>
-				<Channel channel_num=4 total=self.total on_increment=|msg| msg/>
-				<Channel channel_num=5 total=self.total on_increment=|msg| msg/>
-				<Channel channel_num=6 total=self.total on_increment=|msg| msg/>
+				<Channel channel_num=1 total=self.state.total on_increment=|msg| msg/>
+				<Channel channel_num=2 total=self.state.total on_increment=|msg| msg/>
+				<Channel channel_num=3 total=self.state.total on_increment=|msg| msg/>
+				<Channel channel_num=4 total=self.state.total on_increment=|msg| msg/>
+				<Channel channel_num=5 total=self.state.total on_increment=|msg| msg/>
+				<Channel channel_num=6 total=self.state.total on_increment=|msg| msg/>
 				</div>
 				<div class="pure-g">
-				<Channel channel_num=7 total=self.total on_increment=|msg| msg/>
-				<Channel channel_num=8 total=self.total on_increment=|msg| msg/>
-				<Channel channel_num=9 total=self.total on_increment=|msg| msg/>
-				<Channel channel_num=10 total=self.total on_increment=|msg| msg/>
-				<Channel channel_num=11 total=self.total on_increment=|msg| msg/>
-				<Channel channel_num=12 total=self.total on_increment=|msg| msg/>
+				<Channel channel_num=7 total=self.state.total on_increment=|msg| msg/>
+				<Channel channel_num=8 total=self.state.total on_increment=|msg| msg/>
+				<Channel channel_num=9 total=self.state.total on_increment=|msg| msg/>
+				<Channel channel_num=10 total=self.state.total on_increment=|msg| msg/>
+				<Channel channel_num=11 total=self.state.total on_increment=|msg| msg/>
+				<Channel channel_num=12 total=self.state.total on_increment=|msg| msg/>
 				</div>
 				<br /><br />
 
