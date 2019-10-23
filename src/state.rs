@@ -103,20 +103,20 @@ impl Renderable<Self> for StateComponent {
 			<div>
 				{header}
 				<div class="pure-g">
-				<Channel channel_num=1 total=self.state.total on_increment=|msg| msg/>
-				<Channel channel_num=2 total=self.state.total on_increment=|msg| msg/>
-				<Channel channel_num=3 total=self.state.total on_increment=|msg| msg/>
-				<Channel channel_num=4 total=self.state.total on_increment=|msg| msg/>
-				<Channel channel_num=5 total=self.state.total on_increment=|msg| msg/>
-				<Channel channel_num=6 total=self.state.total on_increment=|msg| msg/>
+				<ChannelComponent channel_num=1 total=self.state.total on_increment=|msg| msg/>
+				<ChannelComponent channel_num=2 total=self.state.total on_increment=|msg| msg/>
+				<ChannelComponent channel_num=3 total=self.state.total on_increment=|msg| msg/>
+				<ChannelComponent channel_num=4 total=self.state.total on_increment=|msg| msg/>
+				<ChannelComponent channel_num=5 total=self.state.total on_increment=|msg| msg/>
+				<ChannelComponent channel_num=6 total=self.state.total on_increment=|msg| msg/>
 				</div>
 				<div class="pure-g">
-				<Channel channel_num=7 total=self.state.total on_increment=|msg| msg/>
-				<Channel channel_num=8 total=self.state.total on_increment=|msg| msg/>
-				<Channel channel_num=9 total=self.state.total on_increment=|msg| msg/>
-				<Channel channel_num=10 total=self.state.total on_increment=|msg| msg/>
-				<Channel channel_num=11 total=self.state.total on_increment=|msg| msg/>
-				<Channel channel_num=12 total=self.state.total on_increment=|msg| msg/>
+				<ChannelComponent channel_num=7 total=self.state.total on_increment=|msg| msg/>
+				<ChannelComponent channel_num=8 total=self.state.total on_increment=|msg| msg/>
+				<ChannelComponent channel_num=9 total=self.state.total on_increment=|msg| msg/>
+				<ChannelComponent channel_num=10 total=self.state.total on_increment=|msg| msg/>
+				<ChannelComponent channel_num=11 total=self.state.total on_increment=|msg| msg/>
+				<ChannelComponent channel_num=12 total=self.state.total on_increment=|msg| msg/>
 				</div>
 				<br /><br />
 

@@ -2,11 +2,12 @@
 #![allow(unused_variables)]
 fn main() {
 	extern crate wasm_bindgen_test;
+	use diffcount::channel::*;
 	use diffcount::state::*;
 	use wasm_bindgen_test::*;
 
 	#[wasm_bindgen_test]
-	fn clear_resets_value() {
+	fn state_clear_resets_value() {
 		let mut s = State {
 			alarm_count: 10,
 			total: 5,
@@ -18,7 +19,7 @@ fn main() {
 	}
 
 	#[wasm_bindgen_test]
-	fn increment_increases_total() {
+	fn state_increment_increases_total() {
 		let mut s = State {
 			alarm_count: 10,
 			total: 5,
@@ -44,5 +45,40 @@ fn main() {
 		s.on_incremented();
 		assert_eq!(s.total, 11, "State failed to init correctly");
 		assert_eq!(s.is_alarm_triggered(), false, "Alarm failed to reset");
+	}
+
+	#[wasm_bindgen_test]
+	fn channel_clear_resets_value() {
+		let mut c = Channel {
+			total: 10,
+			value: 5,
+			channel_num: 1,
+			on_increment: None,
+		};
+
+		assert_eq!(c.value, 5, "Channel failed to init correctly");
+		c.on_cleared();
+		assert_eq!(c.value, 0, "Channel failed to clear value correctly");
+	}
+
+	#[wasm_bindgen_test]
+	fn channel_increment_increases_total() {
+		//let cb = yew::callback::Callback::from(|_| callback_count += 1);
+
+		let mut c = Channel {
+			total: 10,
+			value: 5,
+			channel_num: 1,
+			on_increment: None, //Some(cb),
+		};
+
+		assert_eq!(c.value, 5, "Channel failed to init correctly");
+		//assert_eq!(callback_count, 0, "How has this been inc'd already?");
+		c.on_incremented();
+		assert_eq!(c.value, 6, "Channel failed to incrememnt value correctly");
+		// assert_eq!(
+		// 	callback_count, 1,
+		// 	"Channel failed to call the on_increment() callback to the parent."
+		// );
 	}
 }
